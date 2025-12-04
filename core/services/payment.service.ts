@@ -18,7 +18,7 @@ export interface Payment {
 }
 
 export interface PaymentListResponse {
-  payments: Payment[];
+  data: Payment[];
   total: number;
   pages: number;
   currentPage: number;
@@ -26,11 +26,12 @@ export interface PaymentListResponse {
 
 export interface CreatePaymentData {
   residente_id: number;
-  servicio_costo_id: number;
+  servicio_costo_id?: number;
   monto_pagado: number;
-  metodo_pago?: 'Efectivo' | 'Transferencia' | 'Tarjeta' | 'Cheque';
-  referencia?: string;
-  comprobante_url?: string;
+  metodo_pago: 'Efectivo' | 'Transferencia' | 'Tarjeta' | 'Cheque';
+  fecha_pago?: string;
+  referencia?: string | null;
+  notas?: string | null;
 }
 
 @Injectable({
@@ -40,17 +41,15 @@ export class PaymentService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/payments`;
 
-  getAllPayments(filters?: {
-    residente_id?: number;
-    page?: number;
-    limit?: number;
-  }): Observable<PaymentListResponse> {
+  getAllPayments(filters?: any): Observable<PaymentListResponse> {
     let params = new HttpParams();
 
     if (filters) {
-      if (filters.residente_id) params = params.set('residente_id', filters.residente_id.toString());
-      if (filters.page) params = params.set('page', filters.page.toString());
-      if (filters.limit) params = params.set('limit', filters.limit.toString());
+      Object.keys(filters).forEach(key => {
+        if (filters[key] !== null && filters[key] !== undefined && filters[key] !== '') {
+          params = params.set(key, filters[key].toString());
+        }
+      });
     }
 
     return this.http.get<PaymentListResponse>(this.apiUrl, { params });
@@ -62,6 +61,10 @@ export class PaymentService {
 
   createPayment(data: CreatePaymentData): Observable<{ message: string; payment: Payment }> {
     return this.http.post<{ message: string; payment: Payment }>(this.apiUrl, data);
+  }
+
+  updatePayment(id: number, data: Partial<CreatePaymentData>): Observable<{ message: string; payment: Payment }> {
+    return this.http.put<{ message: string; payment: Payment }>(`${this.apiUrl}/${id}`, data);
   }
 
   getPaymentsByResident(residenteId: number): Observable<{ payments: Payment[]; totalPaid: number; count: number }> {

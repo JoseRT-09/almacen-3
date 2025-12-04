@@ -44,23 +44,15 @@ export class ReportService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/reports`;
 
-  getAllReports(filters?: {
-    tipo?: string;
-    estado?: string;
-    prioridad?: string;
-    residencia_id?: number;
-    page?: number;
-    limit?: number;
-  }): Observable<ReportListResponse> {
+  getAllReports(filters?: any): Observable<ReportListResponse> {
     let params = new HttpParams();
 
     if (filters) {
-      if (filters.tipo) params = params.set('tipo', filters.tipo);
-      if (filters.estado) params = params.set('estado', filters.estado);
-      if (filters.prioridad) params = params.set('prioridad', filters.prioridad);
-      if (filters.residencia_id) params = params.set('residencia_id', filters.residencia_id.toString());
-      if (filters.page) params = params.set('page', filters.page.toString());
-      if (filters.limit) params = params.set('limit', filters.limit.toString());
+      Object.keys(filters).forEach(key => {
+        if (filters[key] !== null && filters[key] !== undefined && filters[key] !== '') {
+          params = params.set(key, filters[key].toString());
+        }
+      });
     }
 
     return this.http.get<ReportListResponse>(this.apiUrl, { params });
