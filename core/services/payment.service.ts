@@ -6,14 +6,20 @@ import { environment } from '../../environments/environment';
 export interface Payment {
   id: number;
   residente_id: number;
-  servicio_costo_id: number;
+  usuario_id?: number;
+  servicio_costo_id?: number;
+  costo_servicio_id?: number;
   monto_pagado: number;
+  monto?: number;
   fecha_pago: string;
   metodo_pago?: 'Efectivo' | 'Transferencia' | 'Tarjeta' | 'Cheque';
+  estado?: 'Completado' | 'Pendiente' | 'Rechazado';
   referencia?: string;
+  notas?: string;
   comprobante_url?: string;
   created_at?: string;
   residente?: any;
+  usuario?: any;
   servicioCosto?: any;
 }
 

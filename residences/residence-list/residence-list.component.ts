@@ -172,14 +172,14 @@ export class ResidenceListComponent implements OnInit {
     return iconMap[status];
   }
 
-  getResidentName(residence: Residence): string {
+  getResidentName(residence: any): string {
     if (residence.residenteActual) {
       return `${residence.residenteActual.nombre} ${residence.residenteActual.apellido}`;
     }
     return 'Sin asignar';
   }
 
-  getOwnerName(residence: Residence): string {
+  getOwnerName(residence: any): string {
     if (residence.dueno) {
       return `${residence.dueno.nombre} ${residence.dueno.apellido}`;
     }

@@ -10,7 +10,8 @@ export interface Report {
   tipo: 'Incendio' | 'Eléctrico' | 'Agua' | 'Robo' | 'Otro';
   prioridad: 'Baja' | 'Media' | 'Alta' | 'Crítica';
   estado: 'Abierto' | 'En Progreso' | 'Resuelto' | 'Cerrado';
-  reportado_por_id: number;
+  reportado_por_id?: number;
+  reportado_por?: number;
   asignado_a?: number;
   residencia_id?: number;
   fecha_resolucion?: string;
@@ -20,6 +21,7 @@ export interface Report {
   reportadoPor?: any;
   asignadoA?: any;
   residencia?: any;
+  Residence?: any;
 }
 
 export interface ReportListResponse {
@@ -66,10 +68,7 @@ export class ReportService {
     return this.http.post<{ message: string; report: Report }>(this.apiUrl, data);
   }
 
-  updateReport(id: number, data: Partial<CreateReportData & {
-    estado?: 'Abierto' | 'En Progreso' | 'Resuelto' | 'Cerrado';
-    asignado_a?: number;
-  }>): Observable<{ message: string; report: Report }> {
+  updateReport(id: number, data: any): Observable<{ message: string; report: Report }> {
     return this.http.put<{ message: string; report: Report }>(`${this.apiUrl}/${id}`, data);
   }
 

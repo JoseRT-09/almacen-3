@@ -13,8 +13,9 @@ export interface Activity {
   ubicacion?: string;
   organizador_id: number;
   max_participantes?: number;
-  inscritos_count: number;
+  inscritos_count?: number;
   estado: 'Programada' | 'En Curso' | 'Completada' | 'Cancelada';
+  notas?: string;
   created_at?: string;
   updated_at?: string;
   organizador?: any;
@@ -32,9 +33,12 @@ export interface CreateActivityData {
   descripcion?: string;
   tipo?: 'Reunión' | 'Evento' | 'Mantenimiento' | 'Asamblea' | 'Celebración' | 'Otro';
   fecha_inicio: string;
-  fecha_fin?: string;
+  fecha_fin?: string | null;
   ubicacion?: string;
-  max_participantes?: number;
+  organizador_id?: number;
+  max_participantes?: number | null;
+  estado?: 'Programada' | 'En Curso' | 'Completada' | 'Cancelada';
+  notas?: string | null;
 }
 
 @Injectable({
