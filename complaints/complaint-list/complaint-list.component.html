@@ -254,21 +254,21 @@
               </button>
 
               <mat-menu #statusMenu="matMenu">
-                <button mat-menu-item (click)="changeStatus(complaint, ComplaintStatus.NUEVO)">
+                <button mat-menu-item (click)="changeStatus(complaint, 'Nueva')">
                   <mat-icon>fiber_new</mat-icon>
-                  <span>Nuevo</span>
+                  <span>Nueva</span>
                 </button>
-                <button mat-menu-item (click)="changeStatus(complaint, ComplaintStatus.REVISADO)">
+                <button mat-menu-item (click)="changeStatus(complaint, 'En Revisión')">
                   <mat-icon>rate_review</mat-icon>
-                  <span>Revisado</span>
+                  <span>En Revisión</span>
                 </button>
-                <button mat-menu-item (click)="changeStatus(complaint, ComplaintStatus.EN_PROCESO)">
+                <button mat-menu-item (click)="changeStatus(complaint, 'En Proceso')">
                   <mat-icon>sync</mat-icon>
                   <span>En Proceso</span>
                 </button>
-                <button mat-menu-item (click)="changeStatus(complaint, ComplaintStatus.RESUELTO)">
+                <button mat-menu-item (click)="changeStatus(complaint, 'Resuelta')">
                   <mat-icon>check_circle</mat-icon>
-                  <span>Resuelto</span>
+                  <span>Resuelta</span>
                 </button>
               </mat-menu>
 
@@ -305,11 +305,11 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr 
-          mat-row 
+        <tr
+          mat-row
           *matRowDef="let row; columns: displayedColumns;"
           class="table-row"
-          [class.urgent-row]="row.prioridad === ComplaintPriority.URGENTE"
+          [class.urgent-row]="row.prioridad === 'Urgente'"
         ></tr>
 
         <!-- No Data Row -->

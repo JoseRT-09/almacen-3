@@ -10,7 +10,15 @@ export interface Amenity {
   tipo?: string;
   ubicacion?: string;
   capacidad?: number;
+  capacidad_maxima?: number;
   horario_disponible?: string;
+  horario_inicio?: string;
+  horario_apertura?: string;
+  horario_fin?: string;
+  horario_cierre?: string;
+  requiere_aprobacion?: boolean;
+  costo?: number;
+  costo_por_hora?: number;
   estado: 'Disponible' | 'Ocupada' | 'En Mantenimiento' | 'Fuera de Servicio';
   imagen_url?: string;
   reservaciones_activas?: number;

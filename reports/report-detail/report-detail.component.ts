@@ -21,7 +21,6 @@ import { Report, ReportStatus, ReportType, ReportPriority } from '../../../domai
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
-import { ReportStatusEnum } from '../../../domain/models/report-constants'; // IMPORTACIÓN CORREGIDA
 
 @Component({
   selector: 'app-report-detail',
@@ -180,26 +179,24 @@ export class ReportDetailComponent implements OnInit {
     return iconMap[type] || 'help_outline';
   }
 
-  // CORRECCIÓN: Uso de ReportStatusEnum
   getStatusClass(status: ReportStatus): string {
     const statusMap: { [key: string]: string } = {
-      [ReportStatusEnum.ABIERTO]: 'status-open',
-      [ReportStatusEnum.EN_PROGRESO]: 'status-progress',
-      [ReportStatusEnum.RESUELTO]: 'status-resolved',
-      [ReportStatusEnum.CERRADO]: 'status-closed'
+      'Abierto': 'status-open',
+      'En Progreso': 'status-progress',
+      'Resuelto': 'status-resolved',
+      'Cerrado': 'status-closed'
     };
-    return statusMap[status];
+    return statusMap[status] || 'status-default';
   }
 
-  // CORRECCIÓN: Uso de ReportStatusEnum
   getStatusIcon(status: ReportStatus): string {
     const iconMap: Record<string, string> = {
-      [ReportStatusEnum.ABIERTO]: 'error_outline',
-      [ReportStatusEnum.EN_PROGRESO]: 'sync',
-      [ReportStatusEnum.RESUELTO]: 'check_circle',
-      [ReportStatusEnum.CERRADO]: 'archive'
+      'Abierto': 'error_outline',
+      'En Progreso': 'sync',
+      'Resuelto': 'check_circle',
+      'Cerrado': 'archive'
     };
-    return iconMap[status];
+    return iconMap[status] || 'help_outline';
   }
 
   getPriorityClass(priority: ReportPriority): string {
@@ -234,12 +231,11 @@ export class ReportDetailComponent implements OnInit {
   canEdit(): boolean {
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser || !this.report) return false;
-    
+
     if (this.authService.isAdmin()) return true;
-    
-    // CORRECCIÓN: Uso de ReportStatusEnum
-    return this.report.reportado_por === currentUser.id && 
-           this.report.estado === ReportStatusEnum.ABIERTO;
+
+    return this.report.reportado_por === currentUser.id &&
+           this.report.estado === 'Abierto';
   }
 
   canDelete(): boolean {

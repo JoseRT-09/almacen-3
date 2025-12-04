@@ -125,6 +125,11 @@ export class AmenityBookingComponent implements OnInit {
     return this.authService.isAdmin() || this.authService.isSuperAdmin();
   }
 
+  getCosto(): number {
+    if (!this.amenity) return 0;
+    return this.amenity.costo || this.amenity.costo_por_hora || 0;
+  }
+
   private markFormGroupTouched(formGroup: FormGroup): void {
     Object.keys(formGroup.controls).forEach(key => {
       formGroup.get(key)?.markAsTouched();
@@ -133,11 +138,11 @@ export class AmenityBookingComponent implements OnInit {
 
   getErrorMessage(fieldName: string): string {
     const control = this.bookingForm.get(fieldName);
-    
+
     if (control?.hasError('required')) {
       return 'Este campo es requerido';
     }
-    
+
     if (control?.hasError('minlength')) {
       const minLength = control.errors?.['minlength'].requiredLength;
       return `Mínimo ${minLength} caracteres`;
@@ -146,7 +151,7 @@ export class AmenityBookingComponent implements OnInit {
     if (control?.hasError('min')) {
       return 'Debe ser al menos 1 persona';
     }
-    
+
     return '';
   }
 }
