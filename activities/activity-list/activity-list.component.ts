@@ -1,7 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { ActivityService } from '../../../core/services/activity.service';
+import { NotificationService } from '../../../core/services/notification.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -39,12 +41,12 @@ interface Activity {
   styleUrls: ['./activity-list.component.scss']
 })
 export class ActivityListComponent implements OnInit {
-  private http = inject(HttpClient);
+  private activityService = inject(ActivityService);
+  private notificationService = inject(NotificationService);
+  private authService = inject(AuthService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
-  
-  private apiUrl = 'http://localhost:3000/api/activities';
-  
+
   activities: Activity[] = [];
   isLoading = false;
 
@@ -54,35 +56,21 @@ export class ActivityListComponent implements OnInit {
 
   loadActivities(): void {
     this.isLoading = true;
-    
-    this.http.get<any>(this.apiUrl).subscribe({
-      next: (response: any) => {
-        console.log('Activities response:', response);
-        
-        // ✅ CORRECCIÓN: Manejar múltiples formatos de respuesta
-        if (Array.isArray(response)) {
-          this.activities = response;
-        } else if (response && Array.isArray(response.data)) {
-          this.activities = response.data;
-        } else if (response && Array.isArray(response.activities)) {
-          this.activities = response.activities;
-        } else {
-          console.warn('Unexpected activities response format:', response);
-          this.activities = [];
-        }
-        
+
+    this.activityService.getAllActivities({ page: 1, limit: 1000 }).subscribe({
+      next: (response) => {
+        this.activities = response.data || [];
         this.isLoading = false;
       },
-      error: (error: any) => {
+      error: (error) => {
         console.error('Error loading activities:', error);
         this.activities = [];
         this.isLoading = false;
-        
-        // ✅ CORRECCIÓN: No mostrar error si es 403 (sin permisos)
+
         if (error.status === 403) {
-          this.snackBar.open('No tienes permisos para ver actividades', 'Cerrar', { duration: 3000 });
+          this.notificationService.warning('No tienes permisos para ver actividades');
         } else if (error.status !== 500) {
-          this.snackBar.open('Error al cargar actividades', 'Cerrar', { duration: 3000 });
+          this.notificationService.error('Error al cargar actividades');
         }
       }
     });
@@ -108,20 +96,19 @@ export class ActivityListComponent implements OnInit {
 
   cancelActivity(id: number): void {
     if (!this.canEditActivity()) {
-      this.snackBar.open('No tiene permisos para cancelar actividades', 'Cerrar', { duration: 3000 });
+      this.notificationService.warning('No tiene permisos para cancelar actividades');
       return;
     }
-    
+
     if (confirm('¿Está seguro de cancelar esta actividad?')) {
-      this.http.put(`${this.apiUrl}/${id}/cancel`, {}).subscribe({
+      this.activityService.updateActivity(id, { estado: 'Cancelada' }).subscribe({
         next: () => {
-          this.snackBar.open('Actividad cancelada exitosamente', 'Cerrar', { duration: 3000 });
+          this.notificationService.success('Actividad cancelada exitosamente');
           this.loadActivities();
         },
-        error: (error: any) => {
+        error: (error) => {
           console.error('Error canceling activity:', error);
-          const message = error.error?.message || 'Error al cancelar actividad';
-          this.snackBar.open(message, 'Cerrar', { duration: 3000 });
+          this.notificationService.error(error.error?.message || 'Error al cancelar actividad');
         }
       });
     }
@@ -129,22 +116,19 @@ export class ActivityListComponent implements OnInit {
 
   exportToCSV(): void {
     if (!this.canEditActivity()) {
-      this.snackBar.open('No tiene permisos para exportar', 'Cerrar', { duration: 3000 });
+      this.notificationService.warning('No tiene permisos para exportar');
       return;
     }
-    
-    this.snackBar.open('Exportación disponible próximamente', 'Cerrar', { duration: 3000 });
+
+    this.notificationService.info('Exportación disponible próximamente');
   }
 
-  // ✅ Métodos SIMPLES para verificar permisos
   canCreateActivity(): boolean {
-    const user = this.getUserFromLocalStorage();
-    return user && (user.rol === 'Administrador' || user.rol === 'SuperAdmin');
+    return this.authService.isAdmin() || this.authService.isSuperAdmin();
   }
 
   canEditActivity(): boolean {
-    const user = this.getUserFromLocalStorage();
-    return user && (user.rol === 'Administrador' || user.rol === 'SuperAdmin');
+    return this.authService.isAdmin() || this.authService.isSuperAdmin();
   }
 
   private getUserFromLocalStorage(): any {
