@@ -1,0 +1,157 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <h1>Mi Perfil</h1>
+    <button *ngIf="!isEditing" class="btn btn-primary" (click)="toggleEdit()">
+      <i class="fas fa-edit"></i> Editar Perfil
+    </button>
+  </div>
+
+  <div class="profile-card">
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+      <div class="form-section">
+        <h2>Información Personal</h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nombre">Nombre *</label>
+            <input
+              type="text"
+              id="nombre"
+              formControlName="nombre"
+              class="form-control"
+              [class.is-invalid]="hasError('nombre', 'required') || hasError('nombre', 'minlength')"
+              [readonly]="!isEditing"
+            />
+            <div class="invalid-feedback" *ngIf="hasError('nombre', 'required')">
+              El nombre es requerido
+            </div>
+            <div class="invalid-feedback" *ngIf="hasError('nombre', 'minlength')">
+              El nombre debe tener al menos 2 caracteres
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="apellido">Apellido *</label>
+            <input
+              type="text"
+              id="apellido"
+              formControlName="apellido"
+              class="form-control"
+              [class.is-invalid]="hasError('apellido', 'required') || hasError('apellido', 'minlength')"
+              [readonly]="!isEditing"
+            />
+            <div class="invalid-feedback" *ngIf="hasError('apellido', 'required')">
+              El apellido es requerido
+            </div>
+            <div class="invalid-feedback" *ngIf="hasError('apellido', 'minlength')">
+              El apellido debe tener al menos 2 caracteres
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input
+              type="email"
+              id="email"
+              formControlName="email"
+              class="form-control"
+              [class.is-invalid]="hasError('email', 'required') || hasError('email', 'email')"
+              [readonly]="!isEditing"
+            />
+            <div class="invalid-feedback" *ngIf="hasError('email', 'required')">
+              El email es requerido
+            </div>
+            <div class="invalid-feedback" *ngIf="hasError('email', 'email')">
+              El email no es válido
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="telefono">Teléfono</label>
+            <input
+              type="tel"
+              id="telefono"
+              formControlName="telefono"
+              class="form-control"
+              [readonly]="!isEditing"
+            />
+          </div>
+        </div>
+
+        <div class="form-row" *ngIf="!isEditing">
+          <div class="form-group">
+            <label>Rol</label>
+            <input
+              type="text"
+              [value]="currentUser?.rol"
+              class="form-control"
+              readonly
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Estado</label>
+            <input
+              type="text"
+              [value]="currentUser?.estado"
+              class="form-control"
+              readonly
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section" *ngIf="isEditing">
+        <div class="password-header">
+          <h2>Cambiar Contraseña</h2>
+          <button
+            type="button"
+            class="btn btn-secondary btn-sm"
+            (click)="togglePasswordFields()"
+          >
+            {{ showPasswordFields ? 'Cancelar cambio' : 'Cambiar contraseña' }}
+          </button>
+        </div>
+
+        <div class="form-row" *ngIf="showPasswordFields">
+          <div class="form-group">
+            <label for="password">Nueva Contraseña</label>
+            <input
+              type="password"
+              id="password"
+              formControlName="password"
+              class="form-control"
+              placeholder="Dejar en blanco para no cambiar"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirmar Contraseña</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              formControlName="confirmPassword"
+              class="form-control"
+              [class.is-invalid]="hasError('confirmPassword', 'passwordMismatch')"
+            />
+            <div class="invalid-feedback" *ngIf="hasError('confirmPassword', 'passwordMismatch')">
+              Las contraseñas no coinciden
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions" *ngIf="isEditing">
+        <button type="button" class="btn btn-secondary" (click)="toggleEdit()" [disabled]="isLoading">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="isLoading || profileForm.invalid">
+          <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+          {{ isLoading ? 'Guardando...' : 'Guardar Cambios' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

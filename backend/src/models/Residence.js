@@ -37,7 +37,19 @@ const Residence = sequelize.define('Residence', {
     type: DataTypes.INTEGER,
     defaultValue: 0
   },
-  
+
+  // Tipo de propiedad y precio
+  tipo_propiedad: {
+    type: DataTypes.ENUM('Renta', 'Compra'),
+    allowNull: true,
+    comment: 'Tipo de propiedad: Renta o Compra'
+  },
+  precio: {
+    type: DataTypes.DECIMAL(12, 2),
+    allowNull: true,
+    comment: 'Precio de renta mensual o precio de compra'
+  },
+
   // Referencias a usuarios
   dueno_id: {
     type: DataTypes.INTEGER,
