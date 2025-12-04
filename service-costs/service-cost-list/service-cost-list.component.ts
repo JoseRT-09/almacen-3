@@ -228,6 +228,12 @@ export class ServiceCostListComponent implements OnInit {
       .reduce((sum, cost) => sum + cost.monto, 0);
   }
 
+  getPaidCount(): number {
+    return this.dataSource.data
+      .filter(cost => cost.estado === ServiceCostStatus.PAGADO)
+      .length;
+  }
+
   canEdit(): boolean {
     return this.authService.isAdmin();
   }
