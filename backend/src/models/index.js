@@ -14,13 +14,13 @@ const Payment = require('./Payment');
 const ServiceCost = require('./ServiceCost');
 
 // Verificar que todos los modelos se cargaron correctamente
-if (!User || typeof User !== 'function') {
+if (!User) {
   throw new Error('Error: User no se cargó correctamente');
 }
-if (!Amenity || typeof Amenity !== 'function') {
+if (!Amenity) {
   throw new Error('Error: Amenity no se cargó correctamente');
 }
-if (!AmenityReservation || typeof AmenityReservation !== 'function') {
+if (!AmenityReservation) {
   throw new Error('Error: AmenityReservation no se cargó correctamente');
 }
 
