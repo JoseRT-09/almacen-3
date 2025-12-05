@@ -24,6 +24,18 @@ if (!AmenityReservation) {
   throw new Error('Error: AmenityReservation no se cargó correctamente');
 }
 
+// Verificar que los modelos tienen los métodos necesarios de Sequelize
+if (typeof Amenity.hasMany !== 'function') {
+  console.error('ERROR: Amenity no es un modelo Sequelize válido');
+  console.error('Tipo de Amenity:', typeof Amenity);
+  console.error('Amenity:', Amenity);
+  console.error('Propiedades de Amenity:', Object.keys(Amenity));
+  throw new Error('Amenity no tiene el método hasMany. Verifica que sequelize.define() funcione correctamente.');
+}
+if (typeof User.hasMany !== 'function') {
+  throw new Error('User no es un modelo Sequelize válido');
+}
+
 // ===== DEFINIR ASOCIACIONES =====
 // ===== RELACIONES DE RESIDENCE =====
 
