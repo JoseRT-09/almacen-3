@@ -71,10 +71,19 @@ app.use((err, req, res, next) => {
 
 // Sincronizar base de datos y arrancar servidor
 const PORT = process.env.PORT || 3000;
+const seedDatabase = require('./seeders/seed');
 
 sequelize.sync({ alter: true })
-  .then(() => {
+  .then(async () => {
     console.log('✅ Base de datos sincronizada');
+
+    // Ejecutar seeding automáticamente
+    try {
+      await seedDatabase();
+    } catch (error) {
+      console.error('⚠️  Error al ejecutar seed (continuando de todas formas):', error.message);
+    }
+
     app.listen(PORT, () => {
       console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
       console.log(`📝 Documentación de API disponible en http://localhost:${PORT}`);

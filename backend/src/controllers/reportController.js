@@ -26,6 +26,7 @@ exports.getAllReports = async (req, res) => {
       include: [
         {
           model: Residence,
+          as: 'residencia',
           attributes: ['id', 'numero_unidad', 'bloque', 'piso']
         },
         {
@@ -64,6 +65,7 @@ exports.getReportById = async (req, res) => {
       include: [
         {
           model: Residence,
+          as: 'residencia',
           attributes: ['id', 'numero_unidad', 'bloque', 'piso'],
           include: [
             { model: User, as: 'residenteActual', attributes: ['id', 'nombre', 'apellido', 'telefono'] }
@@ -118,6 +120,7 @@ exports.createReport = async (req, res) => {
       include: [
         {
           model: Residence,
+          as: 'residencia',
           attributes: ['id', 'numero_unidad', 'bloque']
         },
         {
@@ -169,6 +172,7 @@ exports.updateReport = async (req, res) => {
       include: [
         {
           model: Residence,
+          as: 'residencia',
           attributes: ['id', 'numero_unidad', 'bloque']
         },
         {
@@ -214,6 +218,7 @@ exports.assignReport = async (req, res) => {
       include: [
         {
           model: Residence,
+          as: 'residencia',
           attributes: ['id', 'numero_unidad', 'bloque']
         },
         {
@@ -244,6 +249,7 @@ exports.getReportsByUser = async (req, res) => {
       include: [
         {
           model: Residence,
+          as: 'residencia',
           attributes: ['id', 'numero_unidad', 'bloque']
         },
         {

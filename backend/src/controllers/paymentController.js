@@ -23,6 +23,7 @@ exports.getAllPayments = async (req, res) => {
           include: [
             {
               model: Residence,
+              as: 'residencia',
               attributes: ['id', 'numero_unidad', 'bloque']
             }
           ]
@@ -59,6 +60,7 @@ exports.getPaymentById = async (req, res) => {
           include: [
             {
               model: Residence,
+              as: 'residencia',
               attributes: ['id', 'numero_unidad', 'bloque', 'piso']
             }
           ]
@@ -120,6 +122,7 @@ exports.createPayment = async (req, res) => {
           include: [
             {
               model: Residence,
+              as: 'residencia',
               attributes: ['id', 'numero_unidad']
             }
           ]
@@ -152,6 +155,7 @@ exports.getPaymentsByResident = async (req, res) => {
           include: [
             {
               model: Residence,
+              as: 'residencia',
               attributes: ['id', 'numero_unidad', 'bloque']
             }
           ]
