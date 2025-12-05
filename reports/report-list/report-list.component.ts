@@ -20,15 +20,11 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
-import { GetAllReportsUseCase } from '../../../domain/use-cases/report/get-all-reports.usecase';
-import { DeleteReportUseCase } from '../../../domain/use-cases/report/delete-report.usecase';
-import { UpdateReportUseCase } from '../../../domain/use-cases/report/update-report.usecase';
-import { Report, ReportType, ReportStatus, ReportPriority } from '../../../domain/models/report.model';
+import { ReportService } from '../../../core/services/report.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { TimeAgoPipe } from '../../../shared/pipes/time-ago.pipe';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { ReportStatusEnum } from '../../../domain/models/report-constants'; // IMPORTACIÓN CORREGIDA
 
 @Component({
   selector: 'app-report-list',
@@ -60,9 +56,7 @@ import { ReportStatusEnum } from '../../../domain/models/report-constants'; // I
   styleUrls: ['./report-list.component.scss']
 })
 export class ReportListComponent implements OnInit {
-  private getAllReports = inject(GetAllReportsUseCase);
-  private deleteReport = inject(DeleteReportUseCase);
-  private updateReport = inject(UpdateReportUseCase);
+  private reportService = inject(ReportService);
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
   private fb = inject(FormBuilder);
@@ -71,8 +65,8 @@ export class ReportListComponent implements OnInit {
   @ViewChild(MatSort) sort!: MatSort;
 
   displayedColumns: string[] = ['titulo', 'tipo', 'prioridad', 'residencia', 'reportado_por', 'estado', 'fecha_reporte', 'acciones'];
-  dataSource = new MatTableDataSource<Report>();
-  
+  dataSource = new MatTableDataSource<any>();
+
   filterForm!: FormGroup;
   isLoading = true;
   totalReports = 0;
@@ -81,28 +75,27 @@ export class ReportListComponent implements OnInit {
 
   tipos = [
     { value: '', label: 'Todos los tipos' },
-    { value: ReportType.INCENDIO, label: 'Incendio' },
-    { value: ReportType.ELECTRICO, label: 'Eléctrico' },
-    { value: ReportType.AGUA, label: 'Agua' },
-    { value: ReportType.ROBO, label: 'Robo' },
-    { value: ReportType.OTRO, label: 'Otro' }
+    { value: 'Incendio', label: 'Incendio' },
+    { value: 'Eléctrico', label: 'Eléctrico' },
+    { value: 'Agua', label: 'Agua' },
+    { value: 'Robo', label: 'Robo' },
+    { value: 'Otro', label: 'Otro' }
   ];
 
-  // CORRECCIÓN: Uso de ReportStatusEnum
   estados = [
     { value: '', label: 'Todos los estados' },
-    { value: ReportStatusEnum.ABIERTO as ReportStatus, label: 'Abierto' },
-    { value: ReportStatusEnum.EN_PROGRESO as ReportStatus, label: 'En Progreso' },
-    { value: ReportStatusEnum.RESUELTO as ReportStatus, label: 'Resuelto' },
-    { value: ReportStatusEnum.CERRADO as ReportStatus, label: 'Cerrado' }
+    { value: 'Abierto', label: 'Abierto' },
+    { value: 'En Progreso', label: 'En Progreso' },
+    { value: 'Resuelto', label: 'Resuelto' },
+    { value: 'Cerrado', label: 'Cerrado' }
   ];
 
   prioridades = [
     { value: '', label: 'Todas las prioridades' },
-    { value: ReportPriority.BAJA, label: 'Baja' },
-    { value: ReportPriority.MEDIA, label: 'Media' },
-    { value: ReportPriority.ALTA, label: 'Alta' },
-    { value: ReportPriority.CRITICA, label: 'Crítica' }
+    { value: 'Baja', label: 'Baja' },
+    { value: 'Media', label: 'Media' },
+    { value: 'Alta', label: 'Alta' },
+    { value: 'Crítica', label: 'Crítica' }
   ];
 
   ngOnInit(): void {
@@ -147,10 +140,20 @@ export class ReportListComponent implements OnInit {
     if (filters.estado) params.estado = filters.estado;
     if (filters.prioridad) params.prioridad = filters.prioridad;
     if (filters.search) params.search = filters.search;
-    if (filters.fecha_inicio) params.fecha_inicio = filters.fecha_inicio.toISOString();
-    if (filters.fecha_fin) params.fecha_fin = filters.fecha_fin.toISOString();
+    if (filters.fecha_inicio) {
+      const year = filters.fecha_inicio.getFullYear();
+      const month = String(filters.fecha_inicio.getMonth() + 1).padStart(2, '0');
+      const day = String(filters.fecha_inicio.getDate()).padStart(2, '0');
+      params.fecha_inicio = `${year}-${month}-${day}`;
+    }
+    if (filters.fecha_fin) {
+      const year = filters.fecha_fin.getFullYear();
+      const month = String(filters.fecha_fin.getMonth() + 1).padStart(2, '0');
+      const day = String(filters.fecha_fin.getDate()).padStart(2, '0');
+      params.fecha_fin = `${year}-${month}-${day}`;
+    }
 
-    this.getAllReports.execute(params).subscribe({
+    this.reportService.getAllReports(params).subscribe({
       next: (response) => {
         this.dataSource.data = response.data;
         this.totalReports = response.total;
@@ -180,9 +183,9 @@ export class ReportListComponent implements OnInit {
     });
   }
 
-  onDelete(report: Report): void {
+  onDelete(report: any): void {
     if (confirm(`¿Estás seguro de eliminar el reporte "${report.titulo}"?`)) {
-      this.deleteReport.execute(report.id).subscribe({
+      this.reportService.deleteReport(report.id).subscribe({
         next: () => {
           this.notificationService.success('Reporte eliminado correctamente');
           this.loadReports();
@@ -194,8 +197,8 @@ export class ReportListComponent implements OnInit {
     }
   }
 
-  changeStatus(report: Report, newStatus: ReportStatus): void {
-    this.updateReport.execute(report.id, { estado: newStatus }).subscribe({
+  changeStatus(report: any, newStatus: string): void {
+    this.reportService.updateReport(report.id, { estado: newStatus }).subscribe({
       next: () => {
         this.notificationService.success(`Estado actualizado a: ${newStatus}`);
         this.loadReports();
@@ -206,86 +209,83 @@ export class ReportListComponent implements OnInit {
     });
   }
 
-  getTypeClass(type: ReportType): string {
-    const typeMap: Record<ReportType, string> = {
-      [ReportType.INCENDIO]: 'type-fire',
-      [ReportType.ELECTRICO]: 'type-electric',
-      [ReportType.AGUA]: 'type-water',
-      [ReportType.ROBO]: 'type-theft',
-      [ReportType.OTRO]: 'type-other'
+  getTypeClass(type: string): string {
+    const typeMap: Record<string, string> = {
+      'Incendio': 'type-fire',
+      'Eléctrico': 'type-electric',
+      'Agua': 'type-water',
+      'Robo': 'type-theft',
+      'Otro': 'type-other'
     };
     return typeMap[type] || 'type-other';
   }
 
-  getTypeIcon(type: ReportType): string {
-    const iconMap: Record<ReportType, string> = {
-      [ReportType.INCENDIO]: 'local_fire_department',
-      [ReportType.ELECTRICO]: 'flash_on',
-      [ReportType.AGUA]: 'water_drop',
-      [ReportType.ROBO]: 'security',
-      [ReportType.OTRO]: 'help_outline'
+  getTypeIcon(type: string): string {
+    const iconMap: Record<string, string> = {
+      'Incendio': 'local_fire_department',
+      'Eléctrico': 'flash_on',
+      'Agua': 'water_drop',
+      'Robo': 'security',
+      'Otro': 'help_outline'
     };
     return iconMap[type] || 'help_outline';
   }
 
-  // CORRECCIÓN: Uso de ReportStatusEnum
-  getStatusClass(status: ReportStatus): string {
-    const statusMap: { [key: string]: string } = {
-      [ReportStatusEnum.ABIERTO]: 'status-open',
-      [ReportStatusEnum.EN_PROGRESO]: 'status-progress',
-      [ReportStatusEnum.RESUELTO]: 'status-resolved',
-      [ReportStatusEnum.CERRADO]: 'status-closed'
+  getStatusClass(status: string): string {
+    const statusMap: Record<string, string> = {
+      'Abierto': 'status-open',
+      'En Progreso': 'status-progress',
+      'Resuelto': 'status-resolved',
+      'Cerrado': 'status-closed'
     };
-    return statusMap[status];
+    return statusMap[status] || 'status-default';
   }
 
-  // CORRECCIÓN: Uso de ReportStatusEnum
-  getStatusIcon(status: ReportStatus): string {
+  getStatusIcon(status: string): string {
     const iconMap: Record<string, string> = {
-      [ReportStatusEnum.ABIERTO]: 'error_outline',
-      [ReportStatusEnum.EN_PROGRESO]: 'sync',
-      [ReportStatusEnum.RESUELTO]: 'check_circle',
-      [ReportStatusEnum.CERRADO]: 'archive'
+      'Abierto': 'error_outline',
+      'En Progreso': 'sync',
+      'Resuelto': 'check_circle',
+      'Cerrado': 'archive'
     };
-    return iconMap[status];
+    return iconMap[status] || 'help_outline';
   }
 
-  getPriorityClass(priority: ReportPriority): string {
-    const priorityMap: Record<ReportPriority, string> = {
-      [ReportPriority.BAJA]: 'priority-low',
-      [ReportPriority.MEDIA]: 'priority-medium',
-      [ReportPriority.ALTA]: 'priority-high',
-      [ReportPriority.CRITICA]: 'priority-critical'
+  getPriorityClass(priority: string): string {
+    const priorityMap: Record<string, string> = {
+      'Baja': 'priority-low',
+      'Media': 'priority-medium',
+      'Alta': 'priority-high',
+      'Crítica': 'priority-critical'
     };
-    return priorityMap[priority];
+    return priorityMap[priority] || 'priority-default';
   }
 
-  getPriorityIcon(priority: ReportPriority): string {
-    const iconMap: Record<ReportPriority, string> = {
-      [ReportPriority.BAJA]: 'arrow_downward',
-      [ReportPriority.MEDIA]: 'remove',
-      [ReportPriority.ALTA]: 'arrow_upward',
-      [ReportPriority.CRITICA]: 'priority_high'
+  getPriorityIcon(priority: string): string {
+    const iconMap: Record<string, string> = {
+      'Baja': 'arrow_downward',
+      'Media': 'remove',
+      'Alta': 'arrow_upward',
+      'Crítica': 'priority_high'
     };
-    return iconMap[priority];
+    return iconMap[priority] || 'help_outline';
   }
 
-  getReporterName(report: Report): string {
+  getReporterName(report: any): string {
     if (report.reportadoPor) {
       return `${report.reportadoPor.nombre} ${report.reportadoPor.apellido}`;
     }
     return 'Usuario desconocido';
   }
 
-  canEdit(report: Report): boolean {
+  canEdit(report: any): boolean {
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser) return false;
-    
+
     // Admin puede editar todos
     if (this.authService.isAdmin()) return true;
-    
-    // CORRECCIÓN: Uso de ReportStatusEnum
-    return report.reportado_por === currentUser.id && report.estado === ReportStatusEnum.ABIERTO;
+
+    return report.reportado_por === currentUser.id && report.estado === 'Abierto';
   }
 
   canDelete(): boolean {
@@ -296,27 +296,25 @@ export class ReportListComponent implements OnInit {
     this.notificationService.info('Exportando a CSV...');
   }
 
-  // CORRECCIÓN: Uso de ReportStatusEnum
   getOpenCount(): number {
-    return this.dataSource.data.filter(r => r.estado === ReportStatusEnum.ABIERTO).length;
+    return this.dataSource.data.filter(r => r.estado === 'Abierto').length;
   }
 
-  // CORRECCIÓN: Uso de ReportStatusEnum
   getInProgressCount(): number {
-    return this.dataSource.data.filter(r => r.estado === ReportStatusEnum.EN_PROGRESO).length;
+    return this.dataSource.data.filter(r => r.estado === 'En Progreso').length;
   }
 
   getCriticalCount(): number {
-    return this.dataSource.data.filter(r => r.prioridad === ReportPriority.CRITICA).length;
+    return this.dataSource.data.filter(r => r.prioridad === 'Crítica').length;
   }
 
   // Helper para obtener residencia
-  getResidence(report: Report) {
+  getResidence(report: any) {
     return report.Residence || report.residencia;
   }
 
   // Helper para obtener fecha de creación
-  getCreatedDate(report: Report): Date | string {
+  getCreatedDate(report: any): Date | string {
     return report.created_at || new Date();
   }
 }

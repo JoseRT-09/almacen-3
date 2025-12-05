@@ -54,7 +54,10 @@ export enum ReassignmentType {
   VENTA = 'Venta',
   RENTA = 'Renta',
   CAMBIO_RESPONSABLE = 'Cambio Responsable',
-  HERENCIA = 'Herencia'
+  HERENCIA = 'Herencia',
+  ASIGNACION = 'Asignación',
+  CAMBIO = 'Cambio',
+  LIBERACION = 'Liberación'
 }
 
 export interface AssignResidentDto {
@@ -72,15 +75,9 @@ export interface ReassignmentHistory {
   motivo?: string;
   fecha_cambio: Date;
   autorizado_por?: number;
-  
+
   // Relaciones
   residenteAnterior?: User;
   residenteNuevo?: User;
   autorizadoPor?: User;
-}
-
-export enum ReassignmentType {
-  ASIGNACION = 'Asignación',
-  CAMBIO = 'Cambio',
-  LIBERACION = 'Liberación'
 }

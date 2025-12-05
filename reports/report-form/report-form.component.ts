@@ -14,15 +14,10 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatChipsModule } from '@angular/material/chips';
-import { GetReportByIdUseCase } from '../../../domain/use-cases/report/get-report-by-id.usecase';
-import { CreateReportUseCase } from '../../../domain/use-cases/report/create-report.usecase';
-import { UpdateReportUseCase } from '../../../domain/use-cases/report/update-report.usecase';
-import { GetAllResidencesUseCase } from '../../../domain/use-cases/residence/get-all-residences.usecase';
-import { Report, ReportType, ReportStatus, ReportPriority } from '../../../domain/models/report.model';
-import { Residence } from '../../../domain/models/residence.model';
+import { ReportService } from '../../../core/services/report.service';
+import { ResidenceService } from '../../../core/services/residence.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { ReportStatusEnum } from '../../../domain/models/report-constants'; // IMPORTACIÓN CORREGIDA
 
 @Component({
   selector: 'app-report-form',
@@ -50,10 +45,8 @@ export class ReportFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private getReportById = inject(GetReportByIdUseCase);
-  private createReport = inject(CreateReportUseCase);
-  private updateReport = inject(UpdateReportUseCase);
-  private getAllResidences = inject(GetAllResidencesUseCase);
+  private reportService = inject(ReportService);
+  private residenceService = inject(ResidenceService);
   private notificationService = inject(NotificationService);
   private authService = inject(AuthService);
 
@@ -62,36 +55,36 @@ export class ReportFormComponent implements OnInit {
   reportId?: number;
   isLoading = false;
   isSaving = false;
-  residences: Residence[] = [];
+  residences: any[] = [];
 
   // Tipos actualizados según el backend
   tipos = [
-    { 
-      value: ReportType.INCENDIO, 
+    {
+      value: 'Incendio',
       label: 'Incendio',
       icon: 'local_fire_department',
       description: 'Emergencias relacionadas con fuego'
     },
-    { 
-      value: ReportType.ELECTRICO, 
+    {
+      value: 'Eléctrico',
       label: 'Eléctrico',
       icon: 'flash_on',
       description: 'Problemas con instalaciones eléctricas'
     },
-    { 
-      value: ReportType.AGUA, 
+    {
+      value: 'Agua',
       label: 'Agua',
       icon: 'water_drop',
       description: 'Fugas y problemas de plomería'
     },
-    { 
-      value: ReportType.ROBO, 
+    {
+      value: 'Robo',
       label: 'Robo',
       icon: 'security',
       description: 'Incidentes de seguridad y robos'
     },
-    { 
-      value: ReportType.OTRO, 
+    {
+      value: 'Otro',
       label: 'Otro',
       icon: 'help_outline',
       description: 'Otros tipos de incidencias'
@@ -99,29 +92,29 @@ export class ReportFormComponent implements OnInit {
   ];
 
   prioridades = [
-    { 
-      value: ReportPriority.BAJA, 
+    {
+      value: 'Baja',
       label: 'Baja',
       icon: 'arrow_downward',
       color: '#4caf50',
       description: 'No es urgente'
     },
-    { 
-      value: ReportPriority.MEDIA, 
+    {
+      value: 'Media',
       label: 'Media',
       icon: 'remove',
       color: '#ffc107',
       description: 'Atención moderada'
     },
-    { 
-      value: ReportPriority.ALTA, 
+    {
+      value: 'Alta',
       label: 'Alta',
       icon: 'arrow_upward',
       color: '#ff9800',
       description: 'Requiere atención pronta'
     },
-    { 
-      value: ReportPriority.CRITICA, 
+    {
+      value: 'Crítica',
       label: 'Crítica',
       icon: 'priority_high',
       color: '#f44336',
@@ -129,28 +122,27 @@ export class ReportFormComponent implements OnInit {
     }
   ];
 
-  // CORRECCIÓN: Uso de ReportStatusEnum
   estados = [
-    { 
-      value: ReportStatusEnum.ABIERTO as ReportStatus, 
+    {
+      value: 'Abierto',
       label: 'Abierto',
       icon: 'error_outline',
       color: '#ff9800'
     },
-    { 
-      value: ReportStatusEnum.EN_PROGRESO as ReportStatus, 
+    {
+      value: 'En Progreso',
       label: 'En Progreso',
       icon: 'sync',
       color: '#2196f3'
     },
-    { 
-      value: ReportStatusEnum.RESUELTO as ReportStatus, 
+    {
+      value: 'Resuelto',
       label: 'Resuelto',
       icon: 'check_circle',
       color: '#4caf50'
     },
-    { 
-      value: ReportStatusEnum.CERRADO as ReportStatus, 
+    {
+      value: 'Cerrado',
       label: 'Cerrado',
       icon: 'archive',
       color: '#9e9e9e'
@@ -167,16 +159,14 @@ export class ReportFormComponent implements OnInit {
     this.reportForm = this.fb.group({
       titulo: ['', [Validators.required, Validators.minLength(5)]],
       descripcion: ['', [Validators.required, Validators.minLength(10)]],
-      tipo: [ReportType.OTRO, [Validators.required]],
-      prioridad: [ReportPriority.MEDIA, [Validators.required]],
-      // CORRECCIÓN: Uso de ReportStatusEnum
-      estado: [ReportStatusEnum.ABIERTO as ReportStatus, [Validators.required]],
+      tipo: ['Otro', [Validators.required]],
+      prioridad: ['Media'],
       residencia_id: [null]
     });
   }
 
   loadResidences(): void {
-    this.getAllResidences.execute({ page: 1, limit: 1000 }).subscribe({
+    this.residenceService.getAllResidences({ page: 1, limit: 1000 }).subscribe({
       next: (response) => {
         this.residences = response.data;
       },
@@ -200,14 +190,14 @@ export class ReportFormComponent implements OnInit {
     if (!this.reportId) return;
 
     this.isLoading = true;
-    this.getReportById.execute(this.reportId).subscribe({
-      next: (report) => {
+    this.reportService.getReportById(this.reportId).subscribe({
+      next: (response) => {
+        const report = response.report;
         this.reportForm.patchValue({
           titulo: report.titulo,
           descripcion: report.descripcion,
           tipo: report.tipo,
           prioridad: report.prioridad,
-          estado: report.estado,
           residencia_id: report.residencia_id
         });
         this.isLoading = false;
@@ -233,8 +223,8 @@ export class ReportFormComponent implements OnInit {
       });
 
       const operation = this.isEditMode
-        ? this.updateReport.execute(this.reportId!, formData)
-        : this.createReport.execute(formData);
+        ? this.reportService.updateReport(this.reportId!, formData)
+        : this.reportService.createReport(formData);
 
       operation.subscribe({
         next: () => {
@@ -244,7 +234,7 @@ export class ReportFormComponent implements OnInit {
           this.router.navigate(['/reports']);
         },
         error: (error) => {
-          this.notificationService.error('Error al guardar reporte');
+          this.notificationService.error(error.error?.message || 'Error al guardar reporte');
           this.isSaving = false;
         },
         complete: () => {
@@ -289,8 +279,12 @@ export class ReportFormComponent implements OnInit {
     return '';
   }
 
-  getTypeIcon(type: ReportType): string {
+  getTypeIcon(type: string): string {
     const tipo = this.tipos.find(t => t.value === type);
     return tipo?.icon || 'help_outline';
+  }
+
+  isAdmin(): boolean {
+    return this.authService.isAdmin() || this.authService.isSuperAdmin();
   }
 }

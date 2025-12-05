@@ -1,5 +1,7 @@
 // Backend/src/models/index.js (CORREGIDO COMPLETO)
 const sequelize = require('../config/database');
+
+// ===== IMPORTAR TODOS LOS MODELOS =====
 const User = require('./User');
 const Residence = require('./Residence');
 const ReassignmentHistory = require('./ReassignmentHistory');
@@ -11,6 +13,30 @@ const Complaint = require('./Complaint');
 const Payment = require('./Payment');
 const ServiceCost = require('./ServiceCost');
 
+// Verificar que todos los modelos se cargaron correctamente
+if (!User) {
+  throw new Error('Error: User no se cargó correctamente');
+}
+if (!Amenity) {
+  throw new Error('Error: Amenity no se cargó correctamente');
+}
+if (!AmenityReservation) {
+  throw new Error('Error: AmenityReservation no se cargó correctamente');
+}
+
+// Verificar que los modelos tienen los métodos necesarios de Sequelize
+if (typeof Amenity.hasMany !== 'function') {
+  console.error('ERROR: Amenity no es un modelo Sequelize válido');
+  console.error('Tipo de Amenity:', typeof Amenity);
+  console.error('Amenity:', Amenity);
+  console.error('Propiedades de Amenity:', Object.keys(Amenity));
+  throw new Error('Amenity no tiene el método hasMany. Verifica que sequelize.define() funcione correctamente.');
+}
+if (typeof User.hasMany !== 'function') {
+  throw new Error('User no es un modelo Sequelize válido');
+}
+
+// ===== DEFINIR ASOCIACIONES =====
 // ===== RELACIONES DE RESIDENCE =====
 
 // Residence - Dueño

@@ -87,16 +87,16 @@ export class PendingReportsComponent implements OnInit {
 
   getSafeTimeAgoDate(dateInput: string | Date | undefined): string {
     if (!dateInput) return '';
-    
+
     const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
     return this.getTimeAgo(date);
   }
 
-  getTimeAgo(date: Date): string {
+  getTimeAgo(date: string | Date | undefined): string {
     if (!date) return '';
-    
+
     const now = new Date();
-    const reportDate = new Date(date);
+    const reportDate = typeof date === 'string' ? new Date(date) : new Date(date);
     const diff = now.getTime() - reportDate.getTime();
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
