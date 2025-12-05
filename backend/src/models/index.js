@@ -1,5 +1,7 @@
 // Backend/src/models/index.js (CORREGIDO COMPLETO)
 const sequelize = require('../config/database');
+
+// ===== IMPORTAR TODOS LOS MODELOS =====
 const User = require('./User');
 const Residence = require('./Residence');
 const ReassignmentHistory = require('./ReassignmentHistory');
@@ -11,6 +13,18 @@ const Complaint = require('./Complaint');
 const Payment = require('./Payment');
 const ServiceCost = require('./ServiceCost');
 
+// Verificar que todos los modelos se cargaron correctamente
+if (!User || typeof User !== 'function') {
+  throw new Error('Error: User no se cargó correctamente');
+}
+if (!Amenity || typeof Amenity !== 'function') {
+  throw new Error('Error: Amenity no se cargó correctamente');
+}
+if (!AmenityReservation || typeof AmenityReservation !== 'function') {
+  throw new Error('Error: AmenityReservation no se cargó correctamente');
+}
+
+// ===== DEFINIR ASOCIACIONES =====
 // ===== RELACIONES DE RESIDENCE =====
 
 // Residence - Dueño
