@@ -75,6 +75,18 @@ const PORT = process.env.PORT || 3000;
 sequelize.sync({ alter: true })
   .then(() => {
     console.log('✅ Base de datos sincronizada');
+    console.log('📋 Modelos registrados:', Object.keys(sequelize.models));
+
+    // Verificar que los modelos críticos están registrados
+    const criticalModels = ['User', 'Residence', 'Activity', 'Amenity', 'Complaint', 'Report', 'Payment', 'ServiceCost'];
+    const missingModels = criticalModels.filter(model => !sequelize.models[model]);
+
+    if (missingModels.length > 0) {
+      console.error('⚠️  ADVERTENCIA: Los siguientes modelos no están registrados:', missingModels);
+    } else {
+      console.log('✅ Todos los modelos críticos están registrados correctamente');
+    }
+
     app.listen(PORT, () => {
       console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
       console.log(`📝 Documentación de API disponible en http://localhost:${PORT}`);

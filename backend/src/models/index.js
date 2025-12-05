@@ -17,6 +17,9 @@ const ServiceCost = require('./ServiceCost');
 if (!User) {
   throw new Error('Error: User no se cargó correctamente');
 }
+if (!Activity) {
+  throw new Error('Error: Activity no se cargó correctamente');
+}
 if (!Amenity) {
   throw new Error('Error: Amenity no se cargó correctamente');
 }
@@ -25,6 +28,13 @@ if (!AmenityReservation) {
 }
 
 // Verificar que los modelos tienen los métodos necesarios de Sequelize
+if (typeof Activity.hasMany !== 'function') {
+  console.error('ERROR: Activity no es un modelo Sequelize válido');
+  console.error('Tipo de Activity:', typeof Activity);
+  console.error('Activity:', Activity);
+  console.error('Propiedades de Activity:', Object.keys(Activity));
+  throw new Error('Activity no tiene el método hasMany. Verifica que sequelize.define() funcione correctamente.');
+}
 if (typeof Amenity.hasMany !== 'function') {
   console.error('ERROR: Amenity no es un modelo Sequelize válido');
   console.error('Tipo de Amenity:', typeof Amenity);
