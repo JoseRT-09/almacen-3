@@ -72,9 +72,12 @@ app.use((err, req, res, next) => {
 // Sincronizar base de datos y arrancar servidor
 const PORT = process.env.PORT || 3000;
 
-sequelize.sync({ alter: true })
+// ⚠️ IMPORTANTE: Usa { force: true } UNA SOLA VEZ para recrear las tablas y ENUMs
+// Luego cambia a { alter: true } o simplemente sync() para producción
+sequelize.sync({ force: true })
   .then(() => {
-    console.log('✅ Base de datos sincronizada');
+    console.log('✅ Base de datos sincronizada (tablas recreadas)');
+    console.log('⚠️  IMPORTANTE: Cambia { force: true } a { alter: true } después de esta ejecución');
     app.listen(PORT, () => {
       console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
       console.log(`📝 Documentación de API disponible en http://localhost:${PORT}`);
