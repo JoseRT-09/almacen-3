@@ -309,12 +309,12 @@ export class ReportListComponent implements OnInit {
   }
 
   // Helper para obtener residencia
-  getResidence(report: Report) {
+  getResidence(report: any) {
     return report.Residence || report.residencia;
   }
 
   // Helper para obtener fecha de creación
-  getCreatedDate(report: Report): Date | string {
+  getCreatedDate(report: any): Date | string {
     return report.created_at || new Date();
   }
 }

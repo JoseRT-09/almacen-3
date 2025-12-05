@@ -24,7 +24,6 @@ import { ServiceCost, ServiceCostPeriod, ServiceCostStatus } from '../../../doma
 import { NotificationService } from '../../../core/services/notification.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { FilterPipe } from '../../../shared/pipes/filter.pipe';
 import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
 
 @Component({
@@ -50,7 +49,6 @@ import { TruncatePipe } from '../../../shared/pipes/truncate.pipe';
     MatDatepickerModule,
     MatNativeDateModule,
     MatDividerModule,
-    FilterPipe,
     TruncatePipe
   ],
   templateUrl: './service-cost-list.component.html',

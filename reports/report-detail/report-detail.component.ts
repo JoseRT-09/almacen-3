@@ -125,7 +125,7 @@ export class ReportDetailComponent implements OnInit {
   changeStatus(newStatus: string): void {
     if (!this.report) return;
 
-    this.updateReport.execute(this.reportId, { estado: newStatus as ReportStatus }).subscribe({
+    this.updateReport.execute(this.reportId, { estado: newStatus }).subscribe({
       next: () => {
         this.notificationService.success(`Estado actualizado a: ${newStatus}`);
         this.loadReport();

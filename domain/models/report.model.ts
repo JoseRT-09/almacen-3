@@ -51,7 +51,7 @@ export interface UpdateReportDto {
   titulo?: string;
   descripcion?: string;
   prioridad?: ReportPriority;
-  estado?: ReportStatus;
+  estado?: string | ReportStatus;
   asignado_a?: number;
 }
 

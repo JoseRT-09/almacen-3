@@ -314,6 +314,18 @@ export class ActivityListComponent implements OnInit {
     return this.authService.isAdmin() || this.authService.isSuperAdmin();
   }
 
+  getScheduledCount(): number {
+    return this.dataSource.data.filter(a => a.estado === 'Programada').length;
+  }
+
+  getInProgressCount(): number {
+    return this.dataSource.data.filter(a => a.estado === 'En Curso').length;
+  }
+
+  getCompletedCount(): number {
+    return this.dataSource.data.filter(a => a.estado === 'Completada').length;
+  }
+
   private getUserFromLocalStorage(): any {
     try {
       const userStr = localStorage.getItem('currentUser');
