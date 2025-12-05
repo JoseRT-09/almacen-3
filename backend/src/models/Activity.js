@@ -1,4 +1,3 @@
-// Backend/src/models/Activity.js (CORREGIDO COMPLETO)
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
