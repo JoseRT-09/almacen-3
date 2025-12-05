@@ -103,7 +103,7 @@
       </div>
     </div>
     <div class="stat-item new">
-      <mat-icon [matBadge]="getNewCount()" matBadgeColor="warn">fiber_new</mat-icon>
+      <mat-icon [matBadge]="getNewCount()" matBadgeColor="warn" aria-hidden="false">fiber_new</mat-icon>
       <div class="stat-content">
         <span class="stat-value">{{ getNewCount() }}</span>
         <span class="stat-label">Nuevas</span>
@@ -117,7 +117,7 @@
       </div>
     </div>
     <div class="stat-item urgent">
-      <mat-icon [matBadge]="getUrgentCount()" matBadgeColor="warn">priority_high</mat-icon>
+      <mat-icon [matBadge]="getUrgentCount()" matBadgeColor="warn" aria-hidden="false">priority_high</mat-icon>
       <div class="stat-content">
         <span class="stat-value">{{ getUrgentCount() }}</span>
         <span class="stat-label">Urgentes</span>

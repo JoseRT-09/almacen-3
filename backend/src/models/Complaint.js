@@ -66,7 +66,7 @@ const Complaint = sequelize.define('Complaint', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'Users',
+      model: 'users',
       key: 'id'
     }
   },
@@ -74,7 +74,7 @@ const Complaint = sequelize.define('Complaint', {
     type: DataTypes.INTEGER,
     allowNull: true,
     references: {
-      model: 'Residences',
+      model: 'residences',
       key: 'id'
     }
   },
